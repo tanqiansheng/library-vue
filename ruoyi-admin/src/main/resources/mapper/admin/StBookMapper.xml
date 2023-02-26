@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.admin.mapper.StBookMapper">
+    
+    <resultMap type="StBook" id="StBookResult">
+        <result property="bookId"    column="book_id"    />
+        <result property="bookuuid"    column="bookuuid"    />
+        <result property="categoryuuid"    column="categoryuuid"    />
+        <result property="bookname"    column="bookname"    />
+        <result property="author"    column="author"    />
+        <result property="price"    column="price"    />
+        <result property="buydate"    column="buydate"    />
+        <result property="img"    column="img"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectStBookVo">
+        select book_id, bookuuid, categoryuuid, bookname, author, price, buydate, img, del_flag, create_by, create_time, update_by, update_time, remark from st_book
+    </sql>
+
+    <select id="selectStBookList" parameterType="StBook" resultMap="StBookResult">
+        select
+        a.book_id
+        ,a.bookuuid
+        ,b.cataloguename categoryuuid
+        ,a.bookname
+        ,a.author
+        ,a.price
+        ,a.buydate
+        ,a.img
+        ,a.del_flag
+        ,a.create_by
+        ,a.create_time
+        ,a.update_by
+        ,a.update_time
+        ,a.remark
+        from st_book a
+        left join st_catalogue b on a.categoryuuid=b.catalogueuuid
+        <where>  
+            <if test="bookuuid != null  and bookuuid != ''"> and bookuuid = #{bookuuid}</if>
+            <if test="categoryuuid != null  and categoryuuid != ''"> and categoryuuid = #{categoryuuid}</if>
+            <if test="bookname != null  and bookname != ''"> and bookname like concat('%', #{bookname}, '%')</if>
+            <if test="author != null  and author != ''"> and author = #{author}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="buydate != null "> and buydate = #{buydate}</if>
+        </where>
+        order by book_id desc
+    </select>
+    
+    <select id="selectStBookByBookId" parameterType="Long" resultMap="StBookResult">
+        <include refid="selectStBookVo"/>
+        where book_id = #{bookId}
+    </select>
+    <select id="selectBooksByCategoryuuid" resultType="com.ruoyi.admin.domain.StBook">
+        <include refid="selectStBookVo"/>
+        <if test="categoryuuid != null and categoryuuid!='' ">   where categoryuuid = #{categoryuuid}</if>
+
+    </select>
+    <select id="getPanelGroupData" resultType="com.ruoyi.admin.domain.PanelGroupData">
+    select (select count(*) from sys_user WHERE usernumber  is not  null ) as student,
+     (select count(*) from sys_dept where  dept_id not in ( select parent_id from sys_dept)) as dept,
+    (select count(*) from  st_book where del_flag=0) as book,
+    (select count(*) from  st_borrowrecord ) as borrow
+
+    </select>
+
+    <insert id="insertStBook" parameterType="StBook" useGeneratedKeys="true" keyProperty="bookId">
+        insert into st_book
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bookuuid != null and bookuuid != ''">bookuuid,</if>
+            <if test="categoryuuid != null">categoryuuid,</if>
+            <if test="bookname != null">bookname,</if>
+            <if test="author != null">author,</if>
+            <if test="price != null">price,</if>
+            <if test="buydate != null">buydate,</if>
+            <if test="img != null">img,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bookuuid != null and bookuuid != ''">#{bookuuid},</if>
+            <if test="categoryuuid != null">#{categoryuuid},</if>
+            <if test="bookname != null">#{bookname},</if>
+            <if test="author != null">#{author},</if>
+            <if test="price != null">#{price},</if>
+            <if test="buydate != null">#{buydate},</if>
+            <if test="img != null">#{img},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStBook" parameterType="StBook">
+        update st_book
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bookuuid != null and bookuuid != ''">bookuuid = #{bookuuid},</if>
+            <if test="categoryuuid != null">categoryuuid = #{categoryuuid},</if>
+            <if test="bookname != null">bookname = #{bookname},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="buydate != null">buydate = #{buydate},</if>
+            <if test="img != null">img = #{img},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where book_id = #{bookId}
+    </update>
+
+    <delete id="deleteStBookByBookId" parameterType="Long">
+        delete from st_book where book_id = #{bookId}
+    </delete>
+
+    <delete id="deleteStBookByBookIds" parameterType="String">
+        delete from st_book where book_id in 
+        <foreach item="bookId" collection="array" open="(" separator="," close=")">
+            #{bookId}
+        </foreach>
+    </delete>
+</mapper>

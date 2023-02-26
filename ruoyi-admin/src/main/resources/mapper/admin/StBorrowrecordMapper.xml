@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.admin.mapper.StBorrowrecordMapper">
+
+  <resultMap type="StBorrowrecord" id="StBorrowrecordResult">
+    <result property="borrowrecordId"    column="borrowrecord_id"    />
+    <result property="borrowrecorduuid"    column="borrowrecorduuid"    />
+    <result property="bookuuid"    column="bookuuid"    />
+    <result property="userid"    column="userid"    />
+    <result property="borrowtime"    column="borrowtime"    />
+    <result property="returndtime"    column="returndtime"    />
+    <result property="delFlag"    column="del_flag"    />
+    <result property="createBy"    column="create_by"    />
+    <result property="createTime"    column="create_time"    />
+    <result property="updateBy"    column="update_by"    />
+    <result property="updateTime"    column="update_time"    />
+    <result property="remark"    column="remark"    />
+  </resultMap>
+
+  <sql id="selectStBorrowrecordVo">
+        select borrowrecord_id, borrowrecorduuid, bookuuid, userid, borrowtime, returndtime, del_flag, create_by, create_time, update_by, update_time, remark from st_borrowrecord
+    </sql>
+
+  <select id="selectStBorrowrecordList" parameterType="StBorrowrecord" resultMap="StBorrowrecordResult">
+    select
+    a.borrowrecord_id
+    ,a.borrowrecorduuid
+    ,b.bookname bookuuid
+    ,c.nick_name userid
+    ,a.borrowtime
+    ,a.returndtime
+    ,a.del_flag
+    ,a.create_by
+    ,a.create_time
+    ,a.update_by
+    ,a.update_time
+    ,a.remark
+    from st_borrowrecord a
+    left join  st_book b  on a.bookuuid=b.bookuuid
+    left join sys_user c  on c.usernumber=a.userid
+    <where>
+      <if test="borrowrecorduuid != null  and borrowrecorduuid != ''"> and borrowrecorduuid = #{borrowrecorduuid}</if>
+      <if test="bookuuid != null  and bookuuid != ''"> and bookuuid = #{bookuuid}</if>
+      <if test="userid != null  and userid != ''"> and userid = #{userid}</if>
+      <if test="borrowtime != null "> and borrowtime = #{borrowtime}</if>
+      <if test="returndtime != null "> and returndtime = #{returndtime}</if>
+    </where>
+    order by  borrowrecord_id desc
+  </select>
+
+  <select id="selectStBorrowrecordByBorrowrecordId" parameterType="Long" resultMap="StBorrowrecordResult">
+    <include refid="selectStBorrowrecordVo"/>
+    where borrowrecord_id = #{borrowrecordId}
+  </select>
+  <select id="selectStBorrowrecordByUserid" resultType="java.lang.Integer">
+        select count(*) from  st_borrowrecord where userid= #{userid}
+    </select>
+  <select id="borrowrecordOf30Day" resultType="com.ruoyi.admin.domain.NameValue">
+        select count(*)  value, date(borrowtime) name from st_borrowrecord where DATE_SUB(CURDATE(), INTERVAL 60 DAY) &lt;= date(borrowtime) group by date(borrowtime)
+    </select>
+  <select id="borrowrecordBycataloguePercentage" resultType="com.ruoyi.admin.domain.NameValue">
+        select
+        count(*) value,
+        c.cataloguename name
+         from  st_borrowrecord a
+        left join st_book b on a.bookuuid=b.bookuuid
+        left join st_catalogue c on b.categoryuuid=c.catalogueuuid
+        GROUP BY c.catalogueuuid,c.cataloguename
+    </select>
+  <select id="borrowrecordByDeptPercentage" resultType="com.ruoyi.admin.domain.NameValue">
+            select
+			count(*) value
+      ,c.dept_name  name
+      from st_borrowrecord a
+      left join  sys_user b on  a.userid=b.usernumber
+      left join sys_dept c on b.dept_id=c.dept_id
+	  GROUP BY  c.dept_id,c.dept_name
+
+  </select>
+    <select id="getBorrowrecordAll" resultType="com.ruoyi.admin.domain.BorrowRecordAll">
+      select
+      c.dept_id  deptId
+      ,c.dept_name  deptNmae
+      ,e.catalogueuuid,
+      e.cataloguename
+      from st_borrowrecord a
+      left join  sys_user b on  a.userid=b.usernumber
+      left join sys_dept c on b.dept_id=c.dept_id
+      left join st_book d on a.bookuuid=d.bookuuid
+      left join st_catalogue e on d.categoryuuid=e.catalogueuuid
+    </select>
+    <select id="getDeptCount" resultType="java.lang.String">
+select dept_name from sys_dept where  dept_id not in ( select parent_id from sys_dept)
+    </select>
+  <select id="catalogueNamelist" resultType="java.util.List">
+    select cataloguename  from st_catalogue;
+  </select>
+  <select id="borrowrecordBycatalogueRaddar" resultType="com.ruoyi.admin.domain.NameValue">
+
+  </select>
+
+  <insert id="insertStBorrowrecord" parameterType="StBorrowrecord" useGeneratedKeys="true" keyProperty="borrowrecordId">
+    insert into st_borrowrecord
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="borrowrecorduuid != null and borrowrecorduuid != ''">borrowrecorduuid,</if>
+      <if test="bookuuid != null">bookuuid,</if>
+      <if test="userid != null">userid,</if>
+      <if test="borrowtime != null">borrowtime,</if>
+      <if test="returndtime != null">returndtime,</if>
+      <if test="delFlag != null">del_flag,</if>
+      <if test="createBy != null">create_by,</if>
+      <if test="createTime != null">create_time,</if>
+      <if test="updateBy != null">update_by,</if>
+      <if test="updateTime != null">update_time,</if>
+      <if test="remark != null">remark,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="borrowrecorduuid != null and borrowrecorduuid != ''">#{borrowrecorduuid},</if>
+      <if test="bookuuid != null">#{bookuuid},</if>
+      <if test="userid != null">#{userid},</if>
+      <if test="borrowtime != null">#{borrowtime},</if>
+      <if test="returndtime != null">#{returndtime},</if>
+      <if test="delFlag != null">#{delFlag},</if>
+      <if test="createBy != null">#{createBy},</if>
+      <if test="createTime != null">#{createTime},</if>
+      <if test="updateBy != null">#{updateBy},</if>
+      <if test="updateTime != null">#{updateTime},</if>
+      <if test="remark != null">#{remark},</if>
+    </trim>
+  </insert>
+
+  <update id="updateStBorrowrecord" parameterType="StBorrowrecord">
+    update st_borrowrecord
+    <trim prefix="SET" suffixOverrides=",">
+      <if test="borrowrecorduuid != null and borrowrecorduuid != ''">borrowrecorduuid = #{borrowrecorduuid},</if>
+      <if test="bookuuid != null">bookuuid = #{bookuuid},</if>
+      <if test="userid != null">userid = #{userid},</if>
+      <if test="borrowtime != null">borrowtime = #{borrowtime},</if>
+      <if test="returndtime != null">returndtime = #{returndtime},</if>
+      <if test="delFlag != null">del_flag = #{delFlag},</if>
+      <if test="createBy != null">create_by = #{createBy},</if>
+      <if test="createTime != null">create_time = #{createTime},</if>
+      <if test="updateBy != null">update_by = #{updateBy},</if>
+      <if test="updateTime != null">update_time = #{updateTime},</if>
+      <if test="remark != null">remark = #{remark},</if>
+    </trim>
+    where borrowrecord_id = #{borrowrecordId}
+  </update>
+  <update id="handleReturnBook">
+    update st_borrowrecord set
+    returndtime= NOW(),
+    update_time=NOW()
+    where  borrowrecord_id in
+    <foreach item="borrowrecordId" collection="array" open="(" separator="," close=")">
+      #{borrowrecordId}
+    </foreach>
+  </update>
+
+  <delete id="deleteStBorrowrecordByBorrowrecordId" parameterType="Long">
+        delete from st_borrowrecord where borrowrecord_id = #{borrowrecordId}
+    </delete>
+
+  <delete id="deleteStBorrowrecordByBorrowrecordIds" parameterType="String">
+    delete from st_borrowrecord where borrowrecord_id in
+    <foreach item="borrowrecordId" collection="array" open="(" separator="," close=")">
+      #{borrowrecordId}
+    </foreach>
+  </delete>
+</mapper>
