@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.admin.mapper.StCatalogueMapper">
+    
+    <resultMap type="StCatalogue" id="StCatalogueResult">
+        <result property="catalogueId"    column="catalogue_id"    />
+        <result property="catalogueuuid"    column="catalogueuuid"    />
+        <result property="cataloguename"    column="cataloguename"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectStCatalogueVo">
+        select catalogue_id, catalogueuuid, cataloguename, del_flag, create_by, create_time, update_by, update_time, remark from st_catalogue
+    </sql>
+
+    <select id="selectStCatalogueList" parameterType="StCatalogue" resultMap="StCatalogueResult">
+        <include refid="selectStCatalogueVo"/>
+        <where>  
+            <if test="catalogueuuid != null  and catalogueuuid != ''"> and catalogueuuid like concat('%', #{catalogueuuid}, '%')</if>
+            <if test="cataloguename != null  and cataloguename != ''"> and cataloguename like concat('%', #{cataloguename}, '%')</if>
+        </where>
+        order by  catalogue_id desc
+    </select>
+    
+    <select id="selectStCatalogueByCatalogueId" parameterType="Long" resultMap="StCatalogueResult">
+        <include refid="selectStCatalogueVo"/>
+        where catalogue_id = #{catalogueId}
+    </select>
+    <select id="listCatalogueAll" resultType="com.ruoyi.admin.domain.StCatalogue">
+        select * from st_catalogue;
+    </select>
+
+    <insert id="insertStCatalogue" parameterType="StCatalogue" useGeneratedKeys="true" keyProperty="catalogueId">
+        insert into st_catalogue
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="catalogueuuid != null">catalogueuuid,</if>
+            <if test="cataloguename != null">cataloguename,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="catalogueuuid != null">#{catalogueuuid},</if>
+            <if test="cataloguename != null">#{cataloguename},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStCatalogue" parameterType="StCatalogue">
+        update st_catalogue
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="catalogueuuid != null">catalogueuuid = #{catalogueuuid},</if>
+            <if test="cataloguename != null">cataloguename = #{cataloguename},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where catalogue_id = #{catalogueId}
+    </update>
+
+    <delete id="deleteStCatalogueByCatalogueId" parameterType="Long">
+        delete from st_catalogue where catalogue_id = #{catalogueId}
+    </delete>
+
+    <delete id="deleteStCatalogueByCatalogueIds" parameterType="String">
+        delete from st_catalogue where catalogue_id in 
+        <foreach item="catalogueId" collection="array" open="(" separator="," close=")">
+            #{catalogueId}
+        </foreach>
+    </delete>
+</mapper>
